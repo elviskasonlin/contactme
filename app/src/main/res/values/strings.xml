@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Contact Me</string>
+    <string name="action_scan">Scan</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_editEntries">Select</string>
+    <string name="action_editDone">Done</string>
+    <string name="action_detailsImport">Import</string>
+    <string name="action_detailsDone">Done</string>
+</resources>
+

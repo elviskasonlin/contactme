@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_editEntries"
+        android:title="@string/action_editEntries"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_editDone"
+        android:title="@string/action_editDone"
+        app:showAsAction="always" />
+
+</menu>
