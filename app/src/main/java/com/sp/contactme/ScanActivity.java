@@ -1,6 +1,11 @@
+
 package com.sp.contactme;
 
+import android.Manifest;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -17,11 +22,17 @@ import java.util.List;
 
 import ezvcard.Ezvcard;
 import ezvcard.VCard;
+import ezvcard.io.text.VCardReader;
 import xyz.belvi.mobilevisionbarcodescanner.BarcodeRetriever;
 
 public class ScanActivity extends AppCompatActivity implements BarcodeRetriever {
 
     private static final String TAG = "ScanActivity";
+    // Permission type
+    private static final String cameraPermission = Manifest.permission.CAMERA;
+    // Permission request code
+    private static int REQUEST_CODE_CAMERA = 2;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,11 +76,9 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
                 // Store vcard data into vcard object
                 VCard vcard = Ezvcard.parse(barcode.rawValue).first();
 
-
                 // DEBUG Invoke a dialog with QR Data
-                // new ContextThemeWrapper to enable special theme
-
                 // Current test : testing vcard parsing and value.
+                // ```new ContextThemeWrapper```to enable special theme for dialog box
                 AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(ScanActivity.this, R.style.DebugDialogue))
                         .setTitle("DEBUG QR DATA")
                         .setMessage(vcard.getFormattedName().getValue());
@@ -85,21 +94,14 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                String message = "Code selected : " + closetToClick.displayValue + "\n\nother " +
-                        "codes in frame include : \n";
-                for (int index = 0; index < barcodeGraphics.size(); index++) {
-                    Barcode barcode = barcodeGraphics.get(index).getBarcode();
-                    message += (index + 1) + ". " + barcode.displayValue + "\n";
-                }
-                /*AlertDialog.Builder builder = new AlertDialog.Builder(ScanActivity.this)
-                        .setTitle("code retrieved")
-                        .setMessage(message);
-                builder.show();*/
+                for (int i = 0; i < barcodeGraphics.size(); i++) {
+                    Barcode barcode = barcodeGraphics.get(i).getBarcode();
 
-                Toast.makeText(ScanActivity.this, message, Toast.LENGTH_LONG).show();
+                    VCardReader vCardReader = null;
+
+                }
             }
         });
-
     }
 
     @Override
@@ -109,140 +111,132 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
 
     @Override
     public void onRetrievedFailed(String reason) {
-        // in case of failure
+        // In case retreiver fails. Still not sure what this does.
     }
 
     @Override
     public void onPermissionRequestDenied() {
-        // in case permission request is denied
+        // In case permission request for camera is denied, show rationale.
+        // DEBUG
+        // Toast.makeText(ScanActivity.this, "Permission denied", Toast.LENGTH_LONG).show();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(ScanActivity.this, R.style.DebugDialogue))
+                .setTitle("Scan requires access to camera")
+                .setMessage("The QR Code scanner requires access to the camera to operate. Are you sure you do not want to allow this?")
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Send user back to main screen
+                        startActivity(new Intent(ScanActivity.this, MainActivity.class));
+                        // DEBUG
+                        //Toast.makeText(ScanActivity.this, "Dialog YES", Toast.LENGTH_LONG).show();
+                    }
+                })
+                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        requestPermission(cameraPermission, REQUEST_CODE_CAMERA);
+                        // DEBUG
+                        //Toast.makeText(ScanActivity.this, "Dialog NO", Toast.LENGTH_LONG).show();
+                    }
+                });
+        builder.show();
+    }
+
+    // Rmb : Function only allows single permission
+    private void requestPermission(String permission, int requestCode) {
+        ActivityCompat.requestPermissions(ScanActivity.this, new String[] {permission}, requestCode);
     }
 
 }
 
 /*
 
+// Own custom code. Gave up halfway. Leave it here in case I need it again.
+package com.sp.contactme;
+
+import android.Manifest;
+
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.view.ContextThemeWrapper;
+import android.widget.Toast;
+
+public class ScanActivity extends AppCompatActivity {
+
+    // Permission type
+    private static final String cameraPermission = Manifest.permission.CAMERA;
+    // Permission request code
+    private static int REQUEST_CODE_CAMERA = 1;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
 
-        cameraView = (SurfaceView) findViewById(R.id.scanCameraView);
-        scanSuccessIndicatorText = (TextView) findViewById(R.id.scanSuccessIndicatorText);
-        qrDetector = new BarcodeDetector()
-                .Builder(this)
-                .setBarcodeFormats(Barcode.QR_CODE)
-                .build();
-        cameraSource = new CameraSource()
-                .Builder(this, barcodeDetector)
-                .setRequestedPreviewSize(720,480)
-                .setAutoFocusEnabled(true)
-                .build;
+        // Initialise toolbar
+        android.support.v7.widget.Toolbar toolbarMain = findViewById(R.id.toolbarScan);
+        setSupportActionBar(toolbarMain);
 
-        cameraView.getHolder().addCallback(new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-                try {
-                    cameraSource.start(cameraView.getHolder());
-                } catch (IOException exception) {
-                    exception.printStackTrace();
-                }
-            }
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
-            @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            }
-
-            @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-                cameraSource.stop();
-            }
-        });
-
-        qrDetector.setProcessor(new Detector.Processor<Barcode>() {
-            @Override
-            public void release() {
-
-            }
-
-            @Override
-            public void receiveDetections(Detector.Detections<Barcode> detections) {
-                final SparseArray qrCodes = detections.getDetectedItems();
-                if (qrCodes.size() != 0) {
-                    scanSuccessIndicatorText.setText(qrCodes.valueAt(0));
-                }
-            }
-        });
+        startCamera();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        cameraSource.release();
-        qrDetector.release();
-    }
- */
+    private void startCamera() {
+        // Check whether permission is granted
+        if (checkPermission(cameraPermission) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(ScanActivity.this, "Permission denied", Toast.LENGTH_LONG).show();
 
-/*
-@Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scan);
+            // Show rationale for permission
+            if (ActivityCompat.shouldShowRequestPermissionRationale(ScanActivity.this, cameraPermission)) {
+                new AlertDialog.Builder(new ContextThemeWrapper(ScanActivity.this, R.style.DebugDialogue))
+                        .setTitle("Scan requires access to camera")
+                        .setMessage("The QR Code scanner requires access to the camera to operate. Are you sure you do not want to allow this?")
+                        .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                startActivity(new Intent(ScanActivity.this, MainActivity.class));
+                                Toast.makeText(ScanActivity.this, "Dialog YES", Toast.LENGTH_LONG).show();
+                            }
+                        })
+                        .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                requestPermission(cameraPermission, REQUEST_CODE_CAMERA);
+                                Toast.makeText(ScanActivity.this, "Dialog NO", Toast.LENGTH_LONG).show();
 
-        if (!qrDetector.isOperational()) {
-            Log.e("QR Detector cannot be set up.");
+                            }
+                        });
+            } else {
+                requestPermission(cameraPermission, REQUEST_CODE_CAMERA);
+            }
+
         } else {
-            startQrDetect();
+            //Continue
+            Toast.makeText(ScanActivity.this, "Permission granted", Toast.LENGTH_LONG).show();
         }
     }
 
-    void startQrDetect() {
-        final SparseArray qrCodes;
-        Frame frame = new Frame.Builder().setImageData(ByteBuffer dataBuffer, )
+    private void openCamera() {}
 
-
+    private int checkPermission(String permission) {
+        return ContextCompat.checkSelfPermission(ScanActivity.this, permission);
     }
- */
-/*
-qrDetector.setProcessor(new Detector.Processor<Barcode>() {
-            @Override
-            public void release() {
 
-            }
+    // Rmb : Function only allows single permission
+    private void requestPermission(String permission, int requestCode) {
+        ActivityCompat.requestPermissions(ScanActivity.this, new String[] {permission}, requestCode);
+    }
 
-            @Override
-            public void receiveDetections(Detector.Detections<Barcode> detections) {
-                // qrCode sparseArray will not change
-                final SparseArray qrCodes = detections.getDetectedItems();
-                if (qrCodes.size() != 0) {
-                    // Using post method for a text view as receive detections do not run on UI thread.
-                    scanSuccessIndicatorText.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            scanSuccessIndicatorText.setText(qrCodes.valueAt(0));
-                        }
-                    });
-                }
-            }
-        });
-
-        cameraView.getHolder().addCallback(new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-                try {
-                    camSource.start(cameraView.getHolder());
-                } catch (IOException err) {
-                    Log.e("CAM SRC", err.getMessage());
-                }
-            }
-
-            @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-            }
-
-            @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-                camSource.stop();
-            }
-        });
- */
+}
+*/

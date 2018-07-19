@@ -6,7 +6,7 @@
     <color name="colorControlNormal">#3f2c31</color>
     <color name="colorControlActivated">#23fc12</color>
     <color name="colorControlHighlight">#ff3912</color>
-    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="textColorPrimary">#808080</color>
     <color name="dialogTextColor">#000000</color>
     <array name="rect_color">
         <item>@color/color_blue</item>
