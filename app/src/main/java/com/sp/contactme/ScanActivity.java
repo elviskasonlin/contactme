@@ -96,9 +96,7 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
             public void run() {
                 for (int i = 0; i < barcodeGraphics.size(); i++) {
                     Barcode barcode = barcodeGraphics.get(i).getBarcode();
-
                     VCardReader vCardReader = null;
-
                 }
             }
         });
@@ -106,19 +104,31 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
 
     @Override
     public void onBitmapScanned(SparseArray<Barcode> sparseArray) {
-        // when image is scanned and processed
+        // When the image is scanned and processed.
+        Toast.makeText(ScanActivity.this, "onBitmapScanned", Toast.LENGTH_LONG).show();
+
+        //DEBUG
+        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(ScanActivity.this, R.style.DebugDialogue))
+                .setTitle("onBitmapScanned")
+                .setMessage("SparseArray data : " + sparseArray.valueAt(0));
+        builder.show();
     }
 
     @Override
     public void onRetrievedFailed(String reason) {
-        // In case retreiver fails. Still not sure what this does.
+        // Should retrieving fail
+        Toast.makeText(ScanActivity.this, "onRetrievedFailed", Toast.LENGTH_LONG).show();
+
+        // DEBUG
+        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(ScanActivity.this, R.style.DebugDialogue))
+                .setTitle("onRetreivedFailed")
+                .setMessage("Reason : " + reason);
+        builder.show();
     }
 
     @Override
     public void onPermissionRequestDenied() {
-        // In case permission request for camera is denied, show rationale.
-        // DEBUG
-        // Toast.makeText(ScanActivity.this, "Permission denied", Toast.LENGTH_LONG).show();
+        // In case permission request for camera is denied, show rationale & appeal to user
 
         AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(ScanActivity.this, R.style.DebugDialogue))
                 .setTitle("Scan requires access to camera")
@@ -128,15 +138,13 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
                     public void onClick(DialogInterface dialog, int which) {
                         // Send user back to main screen
                         startActivity(new Intent(ScanActivity.this, MainActivity.class));
-                        // DEBUG
-                        //Toast.makeText(ScanActivity.this, "Dialog YES", Toast.LENGTH_LONG).show();
                     }
                 })
                 .setNegativeButton("NO", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        // Request permission again
                         requestPermission(cameraPermission, REQUEST_CODE_CAMERA);
-                        // DEBUG
                         //Toast.makeText(ScanActivity.this, "Dialog NO", Toast.LENGTH_LONG).show();
                     }
                 });
@@ -146,6 +154,11 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
     // Rmb : Function only allows single permission
     private void requestPermission(String permission, int requestCode) {
         ActivityCompat.requestPermissions(ScanActivity.this, new String[] {permission}, requestCode);
+    }
+
+    // Validates whether barcode is in vcard format
+    private Boolean isDataVcard(Barcode barcode) {
+        //Vcard vcard = Ezvcard.validate(barcode);
     }
 
 }
