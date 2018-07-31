@@ -4,6 +4,7 @@ package com.sp.contactme;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
@@ -33,6 +34,9 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
     // Permission request code
     private static int REQUEST_CODE_CAMERA = 2;
 
+    private Cursor model = null;
+    private VcardStorageHelper helper = null;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,6 +58,9 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        // Initialise VcardStorageHelper
+        helper = new VcardStorageHelper(this);
+
     }
 
     // TOOLBAR
@@ -73,12 +80,14 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // Store vcard data into vcard object
-                VCard vcard = Ezvcard.parse(barcode.rawValue).first();
+                // Parse vcard data and write only if valid
+                final VCard vcard = Ezvcard.parse(barcode.rawValue).first();
+                if (vcard != null) {
+                    helper.insert("New Contact", vcard.write());
+                }
 
                 // DEBUG Invoke a dialog with QR Data
-                // Current test : testing vcard parsing and value.
-                // ```new ContextThemeWrapper```to enable special theme for dialog box
+                // `new ContextThemeWrapper` to enable special theme for dialog box
                 AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(ScanActivity.this, R.style.DebugDialogue))
                         .setTitle("DEBUG QR DATA")
                         .setMessage(vcard.getFormattedName().getValue());
@@ -155,11 +164,12 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
     private void requestPermission(String permission, int requestCode) {
         ActivityCompat.requestPermissions(ScanActivity.this, new String[] {permission}, requestCode);
     }
-
+/*
     // Validates whether barcode is in vcard format
     private Boolean isDataVcard(Barcode barcode) {
         //Vcard vcard = Ezvcard.validate(barcode);
     }
+*/
 
 }
 
