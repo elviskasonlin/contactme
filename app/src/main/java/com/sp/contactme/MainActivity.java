@@ -20,12 +20,20 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ezvcard.Ezvcard;
 import ezvcard.VCard;
 
 public class MainActivity extends AppCompatActivity {
+
+    private RecyclerView recyclerView;
+    private VCardProfileAdapter profileAdapter;
+    private List<Profile> profileList;
+    private VCardStorageHelper helper;
+
+    private Cursor model = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,11 +48,17 @@ public class MainActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
 
+        // SETUP
+        profileList = new ArrayList<>();
+        profileAdapter = new VCardProfileAdapter(this, profileList);
+        helper = new VCardStorageHelper(this);
+
         // LAYOUT SETUP
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        RecyclerView recyclerView = (RecyclerView)findViewById(R.id.main_rv);
+        recyclerView = (RecyclerView)findViewById(R.id.main_rv);
+
         recyclerView.setLayoutManager(linearLayoutManager);
-        //recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(profileAdapter);
 
     }
 
@@ -72,6 +86,15 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+
+    // INITIALISE DATA POPULATION
+    private void initList() {
+        if (model != null) {
+            model.close();
+        }
+
+        model = helper.getAll();
     }
 
 }

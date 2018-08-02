@@ -34,9 +34,7 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
     // Permission request code
     private static int REQUEST_CODE_CAMERA = 2;
 
-    private Cursor model = null;
-    private VCardStorageHelper helper = null;
-
+    private VCardStorageHelper helper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,7 +80,7 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
             public void run() {
                 // Parse vcard data and write only if valid
                 final VCard vcard = Ezvcard.parse(barcode.rawValue).first();
-                if (vcard.getFormattedName() != null) {
+                if (vcard != null) {
                     helper.insert("New Contact", vcard.write());
                 }
 

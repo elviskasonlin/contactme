@@ -3,6 +3,7 @@ package com.sp.contactme;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -61,7 +62,7 @@ public class VCardStorageHelper extends SQLiteOpenHelper {
 
     public void update(String profileID, String profile, String data) {
         ContentValues contentValues = new ContentValues();
-        String[] args = {profileID}
+        String[] args = { profileID };
 
         contentValues.put(profile, COLUMN_PROFILE);
         contentValues.put(data, COLUMN_DATA);
@@ -75,6 +76,12 @@ public class VCardStorageHelper extends SQLiteOpenHelper {
 
     public String getProfileData(Cursor c) {
         return (c.getString(2));
+    }
+
+    public int getItemCount() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        int itemCount = (int)DatabaseUtils.queryNumEntries(db, TABLE_NAME);
+        return itemCount;
     }
 
 
