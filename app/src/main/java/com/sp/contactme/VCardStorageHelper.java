@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class VcardStorageHelper extends SQLiteOpenHelper {
+public class VCardStorageHelper extends SQLiteOpenHelper {
     // DB Val
     private static final String DB_NAME = "vcardstorage.db";
     private static final int SCHEMA_VERSION = 1;
@@ -32,7 +32,7 @@ public class VcardStorageHelper extends SQLiteOpenHelper {
             + TABLE_NAME
             + ORDER_BY;
 
-    public VcardStorageHelper(Context context) {
+    public VCardStorageHelper(Context context) {
         super(context, DB_NAME, null, SCHEMA_VERSION);
     }
 
@@ -46,8 +46,6 @@ public class VcardStorageHelper extends SQLiteOpenHelper {
         // Should database needs to change. Schema version increase.
     }
 
-
-
     public Cursor getAll() {
         return (getReadableDatabase().rawQuery(DB_GETALL, null));
     }
@@ -59,6 +57,16 @@ public class VcardStorageHelper extends SQLiteOpenHelper {
         contentValues.put(data, COLUMN_DATA);
 
         getWritableDatabase().insert(TABLE_NAME, COLUMN_PROFILE, contentValues);
+    }
+
+    public void update(String profileID, String profile, String data) {
+        ContentValues contentValues = new ContentValues();
+        String[] args = {profileID}
+
+        contentValues.put(profile, COLUMN_PROFILE);
+        contentValues.put(data, COLUMN_DATA);
+
+        getWritableDatabase().update(TABLE_NAME, contentValues, "_ID=?", args);
     }
 
     public String getProfileName(Cursor c) {

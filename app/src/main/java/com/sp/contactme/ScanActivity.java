@@ -35,7 +35,7 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
     private static int REQUEST_CODE_CAMERA = 2;
 
     private Cursor model = null;
-    private VcardStorageHelper helper = null;
+    private VCardStorageHelper helper = null;
 
 
     @Override
@@ -58,8 +58,8 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        // Initialise VcardStorageHelper
-        helper = new VcardStorageHelper(this);
+        // Initialise VCardStorageHelper
+        helper = new VCardStorageHelper(this);
 
     }
 
@@ -82,7 +82,7 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
             public void run() {
                 // Parse vcard data and write only if valid
                 final VCard vcard = Ezvcard.parse(barcode.rawValue).first();
-                if (vcard != null) {
+                if (vcard.getFormattedName() != null) {
                     helper.insert("New Contact", vcard.write());
                 }
 
