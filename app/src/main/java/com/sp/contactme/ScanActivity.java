@@ -28,6 +28,7 @@ import xyz.belvi.mobilevisionbarcodescanner.BarcodeRetriever;
 
 public class ScanActivity extends AppCompatActivity implements BarcodeRetriever {
 
+    // Tag for Log
     private static final String TAG = "ScanActivity";
     // Permission type
     private static final String cameraPermission = Manifest.permission.CAMERA;
@@ -78,10 +79,11 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // Parse vcard data and write only if valid
+                // Parse data and write only if in vcard format
                 final VCard vcard = Ezvcard.parse(barcode.rawValue).first();
                 if (vcard != null) {
-                    helper.insert("New Contact", vcard.write());
+                    int itemCounter = helper.getItemCount() + 1;
+                    helper.insert("New Contact " + String.valueOf(itemCounter), vcard.write());
                 }
 
                 // DEBUG Invoke a dialog with QR Data
@@ -101,9 +103,15 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                // For each barcode identified, parse data and write only if in vcard format
                 for (int i = 0; i < barcodeGraphics.size(); i++) {
                     Barcode barcode = barcodeGraphics.get(i).getBarcode();
-                    VCardReader vCardReader = null;
+                    final VCard vcard = Ezvcard.parse(barcode.rawValue).first();
+
+                    if (vcard != null) {
+                        int itemCounter = helper.getItemCount() + 1;
+                        helper.insert("New Contact " + String.valueOf(itemCounter), vcard.write());
+                    }
                 }
             }
         });
@@ -111,6 +119,7 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
 
     @Override
     public void onBitmapScanned(SparseArray<Barcode> sparseArray) {
+        // UNSURE ABOUT THIS FUNCTION
         // When the image is scanned and processed.
         Toast.makeText(ScanActivity.this, "onBitmapScanned", Toast.LENGTH_LONG).show();
 
@@ -123,7 +132,8 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
 
     @Override
     public void onRetrievedFailed(String reason) {
-        // Should retrieving fail
+        // UNSURE ABOUT THIS FUNCTION
+        // Should retrieving fail.
         Toast.makeText(ScanActivity.this, "onRetrievedFailed", Toast.LENGTH_LONG).show();
 
         // DEBUG

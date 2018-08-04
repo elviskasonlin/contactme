@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/action_editEntries"
-        android:title="@string/action_editEntries"
+        android:id="@+id/action_editImport"
+        android:title="@string/action_editImport"
         app:showAsAction="always" />
 
     <item

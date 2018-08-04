@@ -4,11 +4,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/action_detailsImport"
-        android:title="@string/action_detailsImport"
-        app:showAsAction="always" />
-
-    <item
         android:id="@+id/action_detailsDone"
         android:title="@string/action_detailsDone"
         app:showAsAction="always" />

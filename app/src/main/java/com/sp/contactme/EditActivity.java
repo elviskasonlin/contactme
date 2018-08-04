@@ -1,5 +1,6 @@
 package com.sp.contactme;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -37,9 +38,10 @@ public class EditActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_editEntries:
+            case R.id.action_editImport:
                 break;
             case R.id.action_editDone:
+                startActivity(new Intent(EditActivity.this, MainActivity.class));
                 break;
             default:
                 break;

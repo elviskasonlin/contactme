@@ -9,27 +9,28 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class VCardProfileAdapter extends RecyclerView.Adapter<VCardProfileAdapter.ProfileHolder> {
+public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileHolder> {
     private Context ctxt;
     private List<Profile> profileList;
 
-    // Constructor
-    public VCardProfileAdapter(Context ctxt, List<Profile> profileList) {
+    // Initialiser – Profile Adapter
+    public ProfileAdapter(Context ctxt, List<Profile> profileList) {
         this.ctxt = ctxt;
         this.profileList = profileList;
     }
 
-    // Profile holder
+    // ViewHolder – Named ProfileHolder (which extends RecyclerView's ViewHolder)
     static class ProfileHolder extends RecyclerView.ViewHolder {
         public TextView profileName;
 
+        // Profile holder (individual items)
         public ProfileHolder(View itemView) {
             super(itemView);
             profileName = (TextView)itemView.findViewById(R.id.txtProfileName);
         }
     }
 
-    // Profile holder, onCreateViewHolder
+    // Function – Upon VH creation.
     @Override
     public ProfileHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View itemView = LayoutInflater.from(viewGroup.getContext())
@@ -37,17 +38,20 @@ public class VCardProfileAdapter extends RecyclerView.Adapter<VCardProfileAdapte
         return new ProfileHolder(itemView);
     }
 
+    // Binding – Bind VH named ProfileHolder to View
     @Override
     public void onBindViewHolder(final ProfileHolder holder, int index) {
         Profile profile = profileList.get(index);
         holder.profileName.setText(profile.getProfileName());
     }
 
+    // Function DEFAULT – RecyclerView onAttached
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
     }
 
+    // Function DEFAULT – getItemCount()
     @Override
     public int getItemCount() {
         return profileList.size();

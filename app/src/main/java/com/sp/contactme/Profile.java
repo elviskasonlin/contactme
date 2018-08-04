@@ -9,6 +9,14 @@ public class Profile {
         this.data = data;
     }
 
+    public void setProfileName(String profileName) {
+        this.profileName = profileName;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
     public String getProfileName() {
         return profileName;
     }
