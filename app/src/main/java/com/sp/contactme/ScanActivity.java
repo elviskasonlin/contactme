@@ -35,7 +35,7 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
     // Permission request code
     private static int REQUEST_CODE_CAMERA = 2;
 
-    private VCardStorageHelper helper;
+    private VCardStorageHelper helper = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,7 +57,7 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        // Initialise VCardStorageHelper
+        // Initialise helper & adapter
         helper = new VCardStorageHelper(this);
 
     }
@@ -79,19 +79,31 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // Parse data and write only if in vcard format
-                final VCard vcard = Ezvcard.parse(barcode.rawValue).first();
-                if (vcard != null) {
-                    int itemCounter = helper.getItemCount() + 1;
-                    helper.insert("New Contact " + String.valueOf(itemCounter), vcard.write());
-                }
+            // Parse data and write only if in vcard format
+            VCard vcard = Ezvcard.parse(barcode.rawValue).first();
+            int itemCounter;
 
-                // DEBUG Invoke a dialog with QR Data
-                // `new ContextThemeWrapper` to enable special theme for dialog box
-                AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(ScanActivity.this, R.style.DebugDialogue))
-                        .setTitle("DEBUG QR DATA")
-                        .setMessage(vcard.getFormattedName().getValue());
-                builder.show();
+            if (vcard != null) {
+                try {
+                    itemCounter = helper.getItemCount() + 1;
+                } catch (Exception e) {
+                    itemCounter = 0;
+                }
+                String outputData = vcard.write();
+                helper.insert("New Contact " + Integer.toString(itemCounter), outputData);
+
+                finish();
+            }
+
+
+/*
+            // DEBUG Invoke a dialog with QR Data
+            // `new ContextThemeWrapper` to enable special theme for dialog box
+            AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(ScanActivity.this, R.style.DebugDialogue))
+                    .setTitle("DEBUG QR DATA")
+                    .setMessage(vcard.getFormattedName().getValue());
+            builder.show();
+*/
             }
         });
 
@@ -106,11 +118,19 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
                 // For each barcode identified, parse data and write only if in vcard format
                 for (int i = 0; i < barcodeGraphics.size(); i++) {
                     Barcode barcode = barcodeGraphics.get(i).getBarcode();
-                    final VCard vcard = Ezvcard.parse(barcode.rawValue).first();
+                    VCard vcard = Ezvcard.parse(barcode.rawValue).first();
+                    int itemCounter;
 
                     if (vcard != null) {
-                        int itemCounter = helper.getItemCount() + 1;
-                        helper.insert("New Contact " + String.valueOf(itemCounter), vcard.write());
+                        try {
+                            itemCounter = helper.getItemCount() + 1;
+                        } catch (Exception e) {
+                            itemCounter = 0;
+                        }
+                        String outputData = vcard.write();
+                        helper.insert("New Contact " + Integer.toString(itemCounter), outputData);
+
+                        finish();
                     }
                 }
             }

@@ -54,15 +54,15 @@ public class VCardStorageHelper extends SQLiteOpenHelper {
     public void insert(String profile, String data) {
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put(profile, COLUMN_PROFILE);
-        contentValues.put(data, COLUMN_DATA);
+        contentValues.put(COLUMN_PROFILE, profile);
+        contentValues.put(COLUMN_DATA, data);
 
         getWritableDatabase().insert(TABLE_NAME, COLUMN_PROFILE, contentValues);
     }
 
     public void update(String profileID, String profile, String data) {
         ContentValues contentValues = new ContentValues();
-        String[] args = { profileID };
+        String[] args = {profileID};
 
         contentValues.put(profile, COLUMN_PROFILE);
         contentValues.put(data, COLUMN_DATA);
@@ -80,7 +80,7 @@ public class VCardStorageHelper extends SQLiteOpenHelper {
 
     public int getItemCount() {
         SQLiteDatabase db = this.getReadableDatabase();
-        int itemCount = (int)DatabaseUtils.queryNumEntries(db, TABLE_NAME);
+        int itemCount = (int) DatabaseUtils.queryNumEntries(db, TABLE_NAME);
         return itemCount;
     }
 

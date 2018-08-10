@@ -1,6 +1,7 @@
 package com.sp.contactme;
 
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.net.sip.SipSession;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,13 +43,13 @@ public class MainActivity extends AppCompatActivity {
         // SETUP
         profileList = new ArrayList<>();
         helper = new VCardStorageHelper(this);
-        initProfileList();
+
         profileAdapter = new ProfileAdapter(this, profileList);
 
         // LAYOUT SETUP
+        //LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView = (RecyclerView)findViewById(R.id.main_rv);
-
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(profileAdapter);
     }
@@ -67,7 +69,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_edit:
-                startActivity(new Intent(MainActivity.this, EditActivity.class));
+                Intent intent = new Intent(MainActivity.this, EditActivity.class);
+                startActivity(intent);
                 break;
             case R.id.action_scan:
                 startActivity(new Intent(MainActivity.this, ScanActivity.class));
@@ -92,7 +95,12 @@ public class MainActivity extends AppCompatActivity {
                     model.getString(model.getColumnIndex(VCardStorageHelper.COLUMN_DATA)));
             profileList.add(profile);
         }
-
+        profileAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initProfileList();
+    }
 }

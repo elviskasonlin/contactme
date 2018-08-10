@@ -20,7 +20,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileH
     }
 
     // ViewHolder – Named ProfileHolder (which extends RecyclerView's ViewHolder)
-    static class ProfileHolder extends RecyclerView.ViewHolder {
+    public class ProfileHolder extends RecyclerView.ViewHolder {
         public TextView profileName;
 
         // Profile holder (individual items)
@@ -32,9 +32,8 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileH
 
     // Function – Upon VH creation.
     @Override
-    public ProfileHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        View itemView = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.layout_card, viewGroup, false);
+    public ProfileHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_card, parent, false);
         return new ProfileHolder(itemView);
     }
 
