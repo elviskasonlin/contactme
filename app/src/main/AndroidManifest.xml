@@ -21,6 +21,9 @@
             android:name=".ScanActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".ShareActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".SplashScreen"
             android:screenOrientation="portrait">
             <intent-filter>

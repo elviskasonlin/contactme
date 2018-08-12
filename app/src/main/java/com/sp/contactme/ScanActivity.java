@@ -80,19 +80,34 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
             @Override
             public void run() {
             // Parse data and write only if in vcard format
-            VCard vcard = Ezvcard.parse(barcode.rawValue).first();
-            int itemCounter;
+            final VCard vcard = Ezvcard.parse(barcode.rawValue).first();
 
             if (vcard != null) {
-                try {
-                    itemCounter = helper.getItemCount() + 1;
-                } catch (Exception e) {
-                    itemCounter = 0;
-                }
-                String outputData = vcard.write();
-                helper.insert("New Contact " + Integer.toString(itemCounter), outputData);
-
-                finish();
+                String message = vcard.getFormattedName().getValue();
+                AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(ScanActivity.this, R.style.DebugDialogue))
+                        .setTitle("Add this contact to list?")
+                        .setMessage(message)
+                        .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                int itemCounter;
+                                try {
+                                    itemCounter = helper.getItemCount() + 1;
+                                } catch (Exception e) {
+                                    itemCounter = 0;
+                                }
+                                String outputData = vcard.write();
+                                helper.insert("New Contact " + Integer.toString(itemCounter), outputData);
+                                finish();
+                            }
+                        })
+                        .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        });
+                builder.show();
             }
 
 
@@ -118,19 +133,33 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
                 // For each barcode identified, parse data and write only if in vcard format
                 for (int i = 0; i < barcodeGraphics.size(); i++) {
                     Barcode barcode = barcodeGraphics.get(i).getBarcode();
-                    VCard vcard = Ezvcard.parse(barcode.rawValue).first();
-                    int itemCounter;
-
+                    final VCard vcard = Ezvcard.parse(barcode.rawValue).first();
                     if (vcard != null) {
-                        try {
-                            itemCounter = helper.getItemCount() + 1;
-                        } catch (Exception e) {
-                            itemCounter = 0;
-                        }
-                        String outputData = vcard.write();
-                        helper.insert("New Contact " + Integer.toString(itemCounter), outputData);
-
-                        finish();
+                        String message = vcard.getFormattedName().getValue();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(ScanActivity.this, R.style.DebugDialogue))
+                                .setTitle("Add this contact to list?")
+                                .setMessage(message)
+                                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        int itemCounter;
+                                        try {
+                                            itemCounter = helper.getItemCount() + 1;
+                                        } catch (Exception e) {
+                                            itemCounter = 0;
+                                        }
+                                        String outputData = vcard.write();
+                                        helper.insert("New Contact " + Integer.toString(itemCounter), outputData);
+                                        finish();
+                                    }
+                                })
+                                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        finish();
+                                    }
+                                });
+                        builder.show();
                     }
                 }
             }
@@ -141,6 +170,7 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
     public void onBitmapScanned(SparseArray<Barcode> sparseArray) {
         // UNSURE ABOUT THIS FUNCTION
         // When the image is scanned and processed.
+        /*
         Toast.makeText(ScanActivity.this, "onBitmapScanned", Toast.LENGTH_LONG).show();
 
         //DEBUG
@@ -148,6 +178,7 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
                 .setTitle("onBitmapScanned")
                 .setMessage("SparseArray data : " + sparseArray.valueAt(0));
         builder.show();
+        */
     }
 
     @Override
@@ -192,102 +223,5 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
     private void requestPermission(String permission, int requestCode) {
         ActivityCompat.requestPermissions(ScanActivity.this, new String[] {permission}, requestCode);
     }
-/*
-    // Validates whether barcode is in vcard format
-    private Boolean isDataVcard(Barcode barcode) {
-        //Vcard vcard = Ezvcard.validate(barcode);
-    }
-*/
 
 }
-
-/*
-
-// Own custom code. Gave up halfway. Leave it here in case I need it again.
-package com.sp.contactme;
-
-import android.Manifest;
-
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.view.ContextThemeWrapper;
-import android.widget.Toast;
-
-public class ScanActivity extends AppCompatActivity {
-
-    // Permission type
-    private static final String cameraPermission = Manifest.permission.CAMERA;
-    // Permission request code
-    private static int REQUEST_CODE_CAMERA = 1;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scan);
-
-        // Initialise toolbar
-        android.support.v7.widget.Toolbar toolbarMain = findViewById(R.id.toolbarScan);
-        setSupportActionBar(toolbarMain);
-
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-
-        startCamera();
-    }
-
-    private void startCamera() {
-        // Check whether permission is granted
-        if (checkPermission(cameraPermission) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(ScanActivity.this, "Permission denied", Toast.LENGTH_LONG).show();
-
-            // Show rationale for permission
-            if (ActivityCompat.shouldShowRequestPermissionRationale(ScanActivity.this, cameraPermission)) {
-                new AlertDialog.Builder(new ContextThemeWrapper(ScanActivity.this, R.style.DebugDialogue))
-                        .setTitle("Scan requires access to camera")
-                        .setMessage("The QR Code scanner requires access to the camera to operate. Are you sure you do not want to allow this?")
-                        .setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                startActivity(new Intent(ScanActivity.this, MainActivity.class));
-                                Toast.makeText(ScanActivity.this, "Dialog YES", Toast.LENGTH_LONG).show();
-                            }
-                        })
-                        .setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                requestPermission(cameraPermission, REQUEST_CODE_CAMERA);
-                                Toast.makeText(ScanActivity.this, "Dialog NO", Toast.LENGTH_LONG).show();
-
-                            }
-                        });
-            } else {
-                requestPermission(cameraPermission, REQUEST_CODE_CAMERA);
-            }
-
-        } else {
-            //Continue
-            Toast.makeText(ScanActivity.this, "Permission granted", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void openCamera() {}
-
-    private int checkPermission(String permission) {
-        return ContextCompat.checkSelfPermission(ScanActivity.this, permission);
-    }
-
-    // Rmb : Function only allows single permission
-    private void requestPermission(String permission, int requestCode) {
-        ActivityCompat.requestPermissions(ScanActivity.this, new String[] {permission}, requestCode);
-    }
-
-}
-*/

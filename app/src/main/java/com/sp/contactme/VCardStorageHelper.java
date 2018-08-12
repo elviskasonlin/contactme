@@ -33,6 +33,14 @@ public class VCardStorageHelper extends SQLiteOpenHelper {
             + TABLE_NAME
             + ORDER_BY;
 
+    // Get byID args
+    private static final String DB_GETBYID = "SELECT "
+            + COLUMN_ID + ", "
+            + COLUMN_PROFILE + ", "
+            + COLUMN_DATA + " FROM "
+            + TABLE_NAME + " WHERE "
+            + "_ID=?";
+
     public VCardStorageHelper(Context context) {
         super(context, DB_NAME, null, SCHEMA_VERSION);
     }
@@ -51,38 +59,44 @@ public class VCardStorageHelper extends SQLiteOpenHelper {
         return (getReadableDatabase().rawQuery(DB_GETALL, null));
     }
 
-    public void insert(String profile, String data) {
+    public Cursor getDataById(String profileID) {
+        String[] args = {profileID};
+        return (getReadableDatabase().rawQuery(DB_GETBYID, args));
+    }
+
+    public void insert(String profileName, String data) {
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put(COLUMN_PROFILE, profile);
+        contentValues.put(COLUMN_PROFILE, profileName);
         contentValues.put(COLUMN_DATA, data);
 
         getWritableDatabase().insert(TABLE_NAME, COLUMN_PROFILE, contentValues);
     }
 
-    public void update(String profileID, String profile, String data) {
+    public void updateAtId(String profileID, String profileName, String data) {
         ContentValues contentValues = new ContentValues();
         String[] args = {profileID};
 
-        contentValues.put(profile, COLUMN_PROFILE);
+        contentValues.put(profileName, COLUMN_PROFILE);
         contentValues.put(data, COLUMN_DATA);
 
         getWritableDatabase().update(TABLE_NAME, contentValues, "_ID=?", args);
     }
 
-    public String getProfileName(Cursor c) {
-        return (c.getString(1));
+    //Delete entire profile by id
+    public void delete(String profileID) {
+        String[] args = {profileID};
+        getWritableDatabase().delete(TABLE_NAME, "_ID=?", args);
     }
 
-    public String getProfileData(Cursor c) {
-        return (c.getString(2));
-    }
+    public String getProfileId(Cursor c) { return (c.getString(0)); }
+    public String getProfile(Cursor c) { return (c.getString(1)); }
+    public String getData(Cursor c) { return (c.getString(2)); }
 
     public int getItemCount() {
         SQLiteDatabase db = this.getReadableDatabase();
         int itemCount = (int) DatabaseUtils.queryNumEntries(db, TABLE_NAME);
         return itemCount;
     }
-
 
 }

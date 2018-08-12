@@ -1,5 +1,6 @@
 package com.sp.contactme;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.database.Cursor;
@@ -10,22 +11,35 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.CursorAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import ezvcard.Ezvcard;
+import ezvcard.VCard;
+
 public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
-    private ProfileAdapter profileAdapter;
-    private List<Profile> profileList;
     private VCardStorageHelper helper;
-
     private Cursor model = null;
+    private ListView listView;
+
+    private TextView dataEmptyAlert = null;
+    private ProfileAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,18 +54,16 @@ public class MainActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
 
-        // SETUP
-        profileList = new ArrayList<>();
+        // HELPER
         helper = new VCardStorageHelper(this);
 
-        profileAdapter = new ProfileAdapter(this, profileList);
+        // MAIN LIST
+        adapter = new ProfileAdapter(model);
+        listView = (ListView) findViewById(R.id.MainListView);
+        listView.setAdapter(adapter);
 
-        // LAYOUT SETUP
-        //LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        recyclerView = (RecyclerView)findViewById(R.id.main_rv);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setAdapter(profileAdapter);
+        // MISC
+        dataEmptyAlert = findViewById(R.id.DataEmptyAlert);
     }
 
     // TOOLBAR
@@ -68,10 +80,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_edit:
-                Intent intent = new Intent(MainActivity.this, EditActivity.class);
-                startActivity(intent);
-                break;
             case R.id.action_scan:
                 startActivity(new Intent(MainActivity.this, ScanActivity.class));
                 break;
@@ -87,20 +95,68 @@ public class MainActivity extends AppCompatActivity {
             model.close();
         }
         model = helper.getAll();
-
-        while(model.moveToNext()) {
-            Profile profile = new Profile();
-            profile.setProfile(
-                    model.getString(model.getColumnIndex(VCardStorageHelper.COLUMN_PROFILE)),
-                    model.getString(model.getColumnIndex(VCardStorageHelper.COLUMN_DATA)));
-            profileList.add(profile);
-        }
-        profileAdapter.notifyDataSetChanged();
+        adapter.swapCursor(model);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         initProfileList();
+
+        if (model.getCount() > 0 ) {
+            dataEmptyAlert.setVisibility(View.INVISIBLE);
+        }
     }
+
+    // ADAPTER FOR LIST VIEW
+
+    class ProfileAdapter extends CursorAdapter {
+        ProfileAdapter(Cursor c) {
+            super(MainActivity.this, c);
+        }
+
+        @Override
+        public void bindView(View row, Context context, Cursor c) {
+            ProfileHolder holder = (ProfileHolder) row.getTag();
+            holder.populateFrom(c, helper);
+        }
+
+        @Override
+        public View newView(Context context, Cursor c, ViewGroup parent) {
+            LayoutInflater inflater = getLayoutInflater();
+            View row = inflater.inflate(R.layout.list_row, parent, false);
+            final ProfileHolder holder = new ProfileHolder(row);
+
+            // Get needed data
+            final String data = helper.getData(c);
+            final String profileName = helper.getProfile(c);
+            final String profileId = helper.getProfileId(c);
+            final VCard vCard = Ezvcard.parse(data).first();
+
+            // CLICK LISTENER - BTN SHARE
+            // Put data into intent and pass it to share view for QR generation
+            holder.btnShare.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(MainActivity.this, "BtnShare Clicked " + vCard.getTelephoneNumbers().get(0).getText(), Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(MainActivity.this, ShareActivity.class));
+                }
+            });
+
+            // CLICK LISTENER - BTN EDIT
+            // Put data into intent and pass it to detail view
+            holder.btnEdit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(MainActivity.this, "BtnEdit Clicked " +vCard.getOrganization().getValues().get(0).toString(), Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(MainActivity.this, EditActivity.class));
+                }
+            });
+
+            row.setTag(holder);
+            return (row);
+        }
+    }
+
+
 }

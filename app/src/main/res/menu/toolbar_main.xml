@@ -8,10 +8,4 @@
         android:icon="@drawable/ic_fullscreen_24px"
         app:showAsAction="always" />
 
-    <item
-        android:id="@+id/action_edit"
-        android:icon="@drawable/ic_edit_24px"
-        android:title="@string/action_edit"
-        app:showAsAction="always" />
-
 </menu>
