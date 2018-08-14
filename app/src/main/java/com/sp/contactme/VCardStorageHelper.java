@@ -77,8 +77,8 @@ public class VCardStorageHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         String[] args = {profileID};
 
-        contentValues.put(profileName, COLUMN_PROFILE);
-        contentValues.put(data, COLUMN_DATA);
+        contentValues.put(COLUMN_PROFILE, profileName);
+        contentValues.put(COLUMN_DATA, data);
 
         getWritableDatabase().update(TABLE_NAME, contentValues, "_ID=?", args);
     }

@@ -27,6 +27,7 @@ dependencies {
     implementation 'com.googlecode.ez-vcard:ez-vcard:0.10.4'
     implementation 'com.google.zxing:core:3.3.3'
     implementation 'com.google.zxing:javase:3.3.3'
+    implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

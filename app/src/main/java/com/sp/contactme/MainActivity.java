@@ -32,6 +32,14 @@ import java.util.List;
 import ezvcard.Ezvcard;
 import ezvcard.VCard;
 
+/*
+
+    QUICK NOTE
+
+    The field "profileName" is left in for future project pivoting purposes (Change back to FD-1).
+
+ */
+
 public class MainActivity extends AppCompatActivity {
 
     private VCardStorageHelper helper;
@@ -82,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_scan:
                 startActivity(new Intent(MainActivity.this, ScanActivity.class));
+                break;
+            case R.id.action_import:
                 break;
             default:
                 break;
@@ -139,7 +149,11 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(MainActivity.this, "BtnShare Clicked " + vCard.getTelephoneNumbers().get(0).getText(), Toast.LENGTH_LONG).show();
-                    startActivity(new Intent(MainActivity.this, ShareActivity.class));
+
+                    Intent intent = new Intent(MainActivity.this, ShareActivity.class);
+                    intent.putExtra("DATA", data);
+                    intent.putExtra("PNAME", vCard.getFormattedName().getValue());
+                    startActivity(intent);
                 }
             });
 
@@ -149,7 +163,12 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(MainActivity.this, "BtnEdit Clicked " +vCard.getOrganization().getValues().get(0).toString(), Toast.LENGTH_LONG).show();
-                    startActivity(new Intent(MainActivity.this, EditActivity.class));
+
+                    Intent intent = new Intent(MainActivity.this, EditActivity.class);
+                    intent.putExtra("DATA", data);
+                    intent.putExtra("PNAME", profileName);
+                    intent.putExtra("PID", profileId);
+                    startActivity(intent);
                 }
             });
 

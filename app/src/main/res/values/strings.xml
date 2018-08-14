@@ -2,9 +2,9 @@
     <string name="app_name">Contact Me</string>
     <string name="action_scan">Scan</string>
     <string name="action_edit">Edit</string>
-    <string name="action_editImport">Import</string>
-    <string name="action_editDone">Done</string>
-    <string name="action_detailsDone">Done</string>
-    <string name="empty_data">Scan new contact</string>
+    <string name="action_import">Import</string>
+    <string name="action_done">Done</string>
+    <string name="action_delete">Delete</string>
+    <string name="empty_data">Scanned contacts are empty!</string>
 </resources>
 

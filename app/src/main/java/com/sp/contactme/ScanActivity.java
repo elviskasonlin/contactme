@@ -97,7 +97,7 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
                                     itemCounter = 0;
                                 }
                                 String outputData = vcard.write();
-                                helper.insert("New Contact " + Integer.toString(itemCounter), outputData);
+                                helper.insert(vcard.getFormattedName().getValue() + " " + Integer.toString(itemCounter), outputData);
                                 finish();
                             }
                         })
@@ -149,7 +149,7 @@ public class ScanActivity extends AppCompatActivity implements BarcodeRetriever 
                                             itemCounter = 0;
                                         }
                                         String outputData = vcard.write();
-                                        helper.insert("New Contact " + Integer.toString(itemCounter), outputData);
+                                        helper.insert(vcard.getFormattedName().getValue() + " " + Integer.toString(itemCounter), outputData);
                                         finish();
                                     }
                                 })
